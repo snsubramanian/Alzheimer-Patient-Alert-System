@@ -1,0 +1,157 @@
+{% extends '../Common/Home.html' %}
+{% block content %}
+<section class="food_section layout_padding-bottom" id="section-wrap">
+    <div class="overlay"></div>
+    <div class="container pt-5">
+        <div class="heading_container heading_center pt-5">
+            <h2 class="dark">Alerts</h2>
+        </div>
+
+        <div class="filters-content">
+            <div class="row grid">
+                {% for medicine in medicines %}
+                    <div class="col-sm-6 col-lg-4 all medicine">
+                        <div class="box appointments">
+                            <div>
+                                <div class="detail-box view-alert">
+                                    <h5>{{ medicine.medicine }}</h5>
+                                    <p class="countdown m-0" data-id="{{ medicine.id }}" data-target-time="{{ medicine.time }}"
+                                        data-message="Time for Medicine: {{ medicine.medicine }}, {{ medicine.dose }}"
+                                        data-type="medicine">
+                                        Time: {{ medicine.time }}
+                                    </p>
+                                    <p class="m-0">Dose: {{ medicine.dose }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% for reminder in reminders %}
+                    <div class="col-sm-6 col-lg-4 all reminder">
+                        <div class="box appointments">
+                            <div>
+                                <div class="detail-box view-alert">
+                                    <h5>{{ reminder.topic }}</h5>
+                                    <p class="countdown m-0" data-id="{{ reminder.id }}" data-target-time="{{ reminder.time }}"
+                                       data-message="{{ reminder.reminder }}" data-type="reminder">Time: {{ reminder.time }}</p>
+                                    <p>{{ reminder.reminder }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if not medicines and not reminders %}
+                    <p class="empty">No Approved Alerts</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="d-none" id="alert-container">
+    <div class="alert-wrap">
+        <div class="alert">
+            <p></p>
+        </div>
+        <div class="btn-wrap">
+            <button class="btn btn-sm btn-primary" id="dismiss">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const countdownElements = document.getElementsByClassName('countdown');
+        const alertContainer = document.querySelector("#alert-container");
+        const alert = alertContainer.querySelector(".alert p");
+        const dismiss = document.querySelector("#dismiss");
+
+        let activeSpeechInterval = null;
+        let activeId = null;
+        let alertType;
+
+        [...countdownElements].forEach(countdownElement => {
+            let reminderTriggered = false;
+
+            const timeString = countdownElement.getAttribute("data-target-time");
+            const message = countdownElement.getAttribute("data-message");
+
+            const [time, period] = timeString.split(' ');
+            const [hours, minutes = "0"] = time.split(':');
+
+            let hour = parseInt(hours);
+           // if (period === "p.m." && hour !== 12) hour += 12;
+            //if (period === "a.m." && hour === 12) hour = 0;
+
+            const targetDate = new Date();
+            targetDate.setHours(hour, parseInt(minutes), 0, 0);
+
+            const interval = setInterval(() => {
+                const now = Date.now();
+
+                if (!reminderTriggered && Math.abs(now - targetDate.getTime()) <= 1000) {
+                    reminderTriggered = true;
+
+                    alertType = countdownElement.getAttribute("data-type");
+                    activeId = countdownElement.getAttribute("data-id");
+
+                    alert.innerHTML = message;
+                    alertContainer.classList.remove("d-none");
+
+                    if (activeSpeechInterval) {
+                        clearInterval(activeSpeechInterval);
+                        window.speechSynthesis.cancel();
+                    }
+
+                    speaknow = () => {
+                        window.speechSynthesis.cancel();
+                        const speech = new SpeechSynthesisUtterance(message);
+                        speech.rate = 0.9;
+                        window.speechSynthesis.speak(speech);
+                    }
+
+                    speaknow();
+                    activeSpeechInterval = setInterval(speaknow, 5000);
+                    clearInterval(interval);
+                }
+            }, 1000);
+        });
+
+        dismiss.addEventListener("click", () => {
+            let url = alertType === "medicine"
+                ? "{% url 'dismiss_alert' %}"
+                : "{% url 'dismiss_alert_2' %}";
+
+            let payload = alertType === "medicine"
+                ? { medicine_id: activeId }
+                : { reminder_id: activeId };
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    activeId = null;
+                } else {
+                    console.error(data.error);
+                }
+            });
+
+            alertContainer.classList.add("d-none");
+
+            if (activeSpeechInterval) {
+                clearInterval(activeSpeechInterval);
+                window.speechSynthesis.cancel();
+                activeSpeechInterval = null;
+            }
+        });
+    });
+</script>
+
+
+{% endblock %}

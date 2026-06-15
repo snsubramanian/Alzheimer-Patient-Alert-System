@@ -1,0 +1,166 @@
+{% extends '../Common/Home.html' %}
+{% load static %}
+{% block content %}
+
+<section class="food_section layout_padding" id="section-wrap">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="heading_container heading_center">
+            <h2>Patient Details</h2>
+        </div>
+
+        <div class="filters-content">
+            <div class="row grid" id="details-wrap">
+                <div class="col-sm-6 col-lg-4 all pizza">
+                    <div class="box clear">
+                        <div>
+                            <div class="img-box">
+                                <img src="{% get_media_prefix %}{{ patient.user.user.first.photo }}" alt="">
+                            </div>
+                            <div class="detail-box">
+                                <h5>{{ patient.user.user.first.name }}</h5>
+                                <p>{{ patient.user.username }}</p>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>Phone</td>
+                                            <td>{{ patient.user.user.first.phone }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Date Of Birth</td>
+                                            <td>{{ patient.user.user.first.dob }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Next of Kin</td>
+                                            <td>{{ patient.user.user.first.kin }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Relation</td>
+                                            <td>{{ patient.user.user.first.relation }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="options">
+                                    {% if utype == "doctor" %}
+                                        <button class="btn btn-sm btn-warning" title="Add Appointment" id="add-apmt">
+                                            <i class="bi bi-calendar-check"></i>
+                                    {% endif %}
+                                    </button>    
+                                    <a href="{% get_media_prefix %}{{ patient.medical_history }}" 
+                                        class="btn btn-sm btn-warning" title="Download History" download>
+                                        <i class="bi bi-download"></i>
+                                    </a> 
+                                    <a href="{% url 'alert_log' user=patient.user.username %}" 
+                                        class="btn btn-sm btn-warning" title="Medicine Log">
+                                        <i class="bi bi-prescription2"></i>
+                                    </a> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 details-container">
+                    <div class="detail-box">
+                        <h5>Medical Details</h5>
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td>Height</td>
+                                    <td>{{ patient.height }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Weight</td>
+                                    <td>{{ patient.weight }} Kg</td>
+                                </tr>
+                                <tr>
+                                    <td>Blood Group</td>
+                                    <td>{{ patient.blood_group }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Blood Pressure</td>
+                                    <td>{{ patient.blood_pressure }} mmHg</td>
+                                </tr>
+                                <tr>
+                                    <td>Temperature</td>
+                                    <td>{{ patient.temperature }} °C</td>
+                                </tr>
+                                <tr>
+                                    <td>Heart Rate</td>
+                                    <td>{{ patient.heart_rate }} bpm</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="medicine-box">
+                        <h5>Previous Medications</h5>
+                        <table>
+                            <tbody>
+                                {% for medicine in patient.previous_medicine %}
+                                    <tr>
+                                        <td>{{ medicine.medicine }}</td>
+                                        <td>{{ medicine.dosage }}</td>
+                                    </tr>
+                                {% endfor %}
+                                {% for medicine in medicines %}
+                                    <tr>
+                                        <td>{{ medicine.medicine }}</td>
+                                        <td>{{ medicine.dose }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="appointment-form d-none">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form_container">
+                        <div class="heading_container">
+                            <h2>Add Appointment</h2>
+                            {% if form.non_field_errors %}
+                                <p class="error">{{ form.non_field_errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <form action="{% url 'add_appointment' id=patient.user.id %}" method="post">
+                            {% csrf_token %}
+                            <div>
+                                <input type="text" class="form-control" name="purpose" placeholder="Purpose" required/>
+                            </div>
+                            <div>
+                                <input type="datetime-local" name="date" class="form-control"  required>
+                            </div>
+                            <div class="btn_box">
+                                <button class="btn-sm btn" type="submit">Add</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var addAppointmentButton = document.querySelector("#add-apmt");
+        var appointmentForm = document.querySelector(".appointment-form");
+        var formContainer = document.querySelector(".form_container");
+
+        addAppointmentButton.addEventListener("click", function () {
+            appointmentForm.classList.remove("d-none");
+        });
+
+        appointmentForm.addEventListener("click", function (event) {
+            if (!formContainer.contains(event.target)) {
+                appointmentForm.classList.add("d-none");
+            }
+        });
+    });
+</script>
+
+{% endblock %}

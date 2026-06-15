@@ -1,0 +1,94 @@
+{% extends '../Common/Home.html' %}
+{% block content %}
+<section class="book_section layout_padding" id="section-wrap">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form_container">
+                    <div class="heading_container">
+                        <h2>Add Medical Details</h2>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p class="error">{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+
+                        {% if success %}
+                            <p class="success">Details Added!</p>
+                        {% endif %}
+                    </div>
+                    <form method="post" class="half" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div>
+                            <select name="doctor" class="form-control">
+                                <option value="">Choose Doctor</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">{{ doctor.name }}</option> 
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <select name="blood_group" class="form-control">
+                                <option value="">Blood Group</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" name="height" placeholder="Height" required/>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" name="weight" placeholder="Weight" required/>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" name="blood_pressure" placeholder="Blood Pressure" required/>
+                        </div>
+                        <div>
+                            <input type="number" class="form-control" name="heart_rate" placeholder="Heart Rate" required/>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" name="temperature" placeholder="Temperature" required/>
+                        </div>
+                        <div>
+                            <input type="file" class="form-control" name="medical_history" title="Medical History" required/>
+                        </div>
+                        <div class="previous-medicines-wrap">
+                            <input type="text" class="form-control" name="medicines[]" placeholder="Previous Medicines"/>
+                            <div class="dosage-wrap">
+                                <input type="text" class="form-control" name="dosage[]" placeholder="Dosage"/>
+                                <button class="add-prev-med">+</button>
+                            </div>
+                        </div>
+                        
+                        <div class="btn_box">
+                            <button type="submit">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("add-prev-med")) {
+                const addBtn = e.target;
+                const wrapper = addBtn.closest(".previous-medicines-wrap");
+                const clone = wrapper.cloneNode(true);
+
+                clone.querySelectorAll("input").forEach(input => input.value = "");
+                wrapper.after(clone);
+                addBtn.remove();
+            }
+        });
+    </script>
+
+</section>
+{% endblock %}

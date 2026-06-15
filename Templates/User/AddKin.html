@@ -1,0 +1,33 @@
+{% extends '../Common/Home.html' %}
+{% block content %}
+<section class="book_section layout_padding" id="section-wrap">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form_container">
+                    <div class="heading_container">
+                        <h2>Add Kin</h2>
+                        {{form.errors}}
+                        {% if success %}
+                            <p class="success">Kin Added</p>
+                        {% endif %}
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div>
+                            <input type="text" class="form-control" name="name" placeholder="Name" required/>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" name="relation" placeholder="Relation" required/>
+                        </div>
+                        <div class="btn_box">
+                            <button type="submit">Add Kin</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends '../Common/Home.html' %}
+{% block content %}
+<section class="book_section layout_padding" id="section-wrap">
+    <div class="overlay"></div>    
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form_container">
+                    <div class="heading_container">
+                        <h2>Add Medicine</h2>
+                        {{form.errors}}
+                        {% if form.non_field_errors %}
+                            <p class="error">{{ form.non_field_errors.0 }}</p>
+                        {% elif success %}
+                            {% if request.resolver_match.kwargs.id %}
+                                <p class="success">Medicine Amended</p>
+                            {% else %}
+                                <p class="success">Medicine Added</p>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div>
+                            <input type="text" class="form-control" name="medicine"
+                                value="{{ form.medicine.value|default_if_none:"" }}" placeholder="Medicine" required/>
+                        </div>
+                        <div>
+                            <input type="time" class="form-control" name="time" 
+                                value="{{ form.time.value|time:"H:i" }}" placeholder="Time" required/>
+                        </div>
+                        <div>
+                            <input type="text" class="form-control" name="dose" 
+                                value="{{ form.dose.value|default_if_none:"" }}" placeholder="Dose" required/>
+                        </div>
+                        <div class="btn_box">
+                            {% if request.resolver_match.kwargs.id %}
+                                <button type="submit">Amend Medicine</button>
+                            {% else %}
+                                <button type="submit">Add Medicine</button>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

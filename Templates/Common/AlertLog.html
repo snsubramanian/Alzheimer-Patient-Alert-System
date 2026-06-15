@@ -1,0 +1,123 @@
+{% extends '../Common/Home.html' %}
+{% block content %}
+<section class="offer_section layout_padding-bottom" id="section-wrap">
+    <div class="overlay"></div>
+    <div class="offer_container">
+        <div class="container">
+            <div class="row" id="table-wrap">
+                <div class="row col-md-12 search-wrap">
+                    <div class="col-md-1"></div>
+                    <form method="post" class="col-md-10" id="search">
+                        {% csrf_token %}
+                        <input type="month" name="month" class="form-control" id="serach-input">
+                        <button type="submit">search</button>
+                    </form>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-10 patient">
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Medicine</th>
+                                <th>Dose</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for medicine_log in medicines %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ medicine_log.medicine.medicine }}</td>
+                                <td>{{ medicine_log.medicine.dose }}</td>
+
+                                <td>
+                                    {% if medicine_log.status == 1 %}
+                                        Taken
+                                    {% else %}
+                                        Not Taken
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ medicine_log.timestamp|date:"Y-m-d" }}</td>
+                                <td>{{ medicine_log.timestamp|time:"H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No medicine logs found</td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-1"></div>
+                <div class="col-md-1"></div>
+                <div class="col-md-10 patient">
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Topic</th>
+                                <th>Reminder</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for reminder_log in reminders %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ reminder_log.reminder.topic }}</td>
+                                <td>{{ reminder_log.reminder.reminder }}</td>
+
+                                <td>
+                                    {% if reminder_log.status == 1 %}
+                                        Done
+                                    {% else %}
+                                        Not Done
+                                    {% endif %}
+                                </td>
+
+                                <td>{{ reminder_log.timestamp|date:"Y-m-d" }}</td>
+                                <td>{{ reminder_log.timestamp|time:"H:i" }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No reminder logs found</td>
+                            </tr>
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('serach-input');
+        const tableRows = document.querySelectorAll('tbody tr');
+        
+        searchInput.addEventListener('input', function () {
+            const query = searchInput.value.toLowerCase();
+            tableRows.forEach(row => {
+                const patientName = row.getAttribute('datat-patient').toLowerCase();
+                if (patientName.includes(query)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends '../Common/Home.html' %}
+{% block content %}
+<section class="book_section layout_padding" id="section-wrap">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form_container">
+                    <div class="heading_container">
+                        <h2>Add Reminder</h2>
+                        {{form.errors}}
+                        {% if form.non_field_errors %}
+                            <p class="error">{{ form.non_field_errors.0 }}</p>
+                        {% elif success %}
+                            <p class="success">Reminder Added</p>
+                        {% endif %}
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div>
+                            <input type="text" class="form-control" name="topic" placeholder="Topic" required/>
+                        </div>
+                        <div>
+                            <textarea name="reminder" class="form-control" placeholder="Reminder" required></textarea>
+                        </div>
+                        <div>
+                            <input type="time" class="form-control" name="time" placeholder="Time" required/>
+                        </div>
+                        <div class="btn_box">
+                            <button type="submit">Add Reminder</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
